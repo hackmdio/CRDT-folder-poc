@@ -1,5 +1,18 @@
 .workspace {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 10px;
+}
+
+.overview {
   background-color: rgba(0, 0, 127, 0.1);
+  width: 100%;
+  min-height: 80vh;
+}
+
+.detail {
+  background-color: rgba(0, 127, 0, 0.1);
   width: 100%;
   min-height: 80vh;
 }
