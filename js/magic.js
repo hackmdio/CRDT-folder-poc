@@ -56,6 +56,7 @@ function createFolderEl (folderMeta) {
     <div>${id}</div>
     <div>${name}</div>
   `
+  folderEl.dataset.id = id
   return folderEl
 }
 
@@ -71,6 +72,7 @@ function createItemEl (itemMeta) {
     <div>${id}</div>
     <div>${name}</div>
   `
+  itemEl.dataset.id = id
   return itemEl
 }
 
@@ -84,4 +86,31 @@ document.querySelector('.add-folder').addEventListener('click', () => {
 document.querySelector('.add-item').addEventListener('click', () => {
   initRootFolder()
   rootFolder.push([{ id: nanoid(), name: 'New Item' }])
+})
+
+document.querySelector('.delete').addEventListener('click', () => {
+  let deletedSet = new Set()
+  document.querySelectorAll('.item input[type="checkbox"]:checked').forEach(el => {
+    const id = el.closest('.item').dataset.id
+    deletedSet.add(id)
+  })
+
+  ydoc.transact(() => {
+    for (let i = yArray.length - 1; i > 0; i--) {
+      const folder = yArray.get(i)
+      for (let j = folder.length - 1; j > 0; j--) {
+        const id = folder.get(j).id
+        if (deletedSet.has(id)) {
+          folder.delete(j)
+          deletedSet.delete(id)
+        }
+      }
+
+      const id = folder.get(0).id
+      if (deletedSet.has(id)) {
+        yArray.delete(i)
+        deletedSet.delete(id)
+      }
+    }
+  })
 })
