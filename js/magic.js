@@ -52,11 +52,13 @@ function createFolderEl (folderMeta) {
       <input type="checkbox" />
       <button>View</button>
       <button>Move item into...</button>
+      <button class="delete-item">Delete</button>
     </div>
     <div>${id}</div>
     <div>${name}</div>
   `
   folderEl.dataset.id = id
+  folderEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   return folderEl
 }
 
@@ -68,11 +70,13 @@ function createItemEl (itemMeta) {
   itemEl.innerHTML = `
     <div>
       <input type="checkbox" />
+      <button class="delete-item">Delete</button>
     </div>
     <div>${id}</div>
     <div>${name}</div>
   `
   itemEl.dataset.id = id
+  itemEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   return itemEl
 }
 
@@ -89,28 +93,36 @@ document.querySelector('.add-item').addEventListener('click', () => {
 })
 
 document.querySelector('.delete').addEventListener('click', () => {
-  let deletedSet = new Set()
+  let idSet = new Set()
   document.querySelectorAll('.item input[type="checkbox"]:checked').forEach(el => {
     const id = el.closest('.item').dataset.id
-    deletedSet.add(id)
+    idSet.add(id)
   })
+  deleteItems(idSet)
+})
 
+function deleteItemHandler (event) {
+  const id = event.target.closest('.item').dataset.id
+  deleteItems(new Set([id]))
+}
+
+function deleteItems (idSet) {
   ydoc.transact(() => {
-    for (let i = yArray.length - 1; i > 0; i--) {
+    for (let i = yArray.length - 1; i >= 0; i--) {
       const folder = yArray.get(i)
       for (let j = folder.length - 1; j > 0; j--) {
         const id = folder.get(j).id
-        if (deletedSet.has(id)) {
+        if (idSet.has(id)) {
           folder.delete(j)
-          deletedSet.delete(id)
+          idSet.delete(id)
         }
       }
 
       const id = folder.get(0).id
-      if (deletedSet.has(id)) {
+      if (idSet.has(id)) {
         yArray.delete(i)
-        deletedSet.delete(id)
+        idSet.delete(id)
       }
     }
   })
-})
+}
