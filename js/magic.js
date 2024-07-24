@@ -5,15 +5,22 @@ import { nanoid } from 'nanoid'
 const ydoc = new Y.Doc()
 const provider = new WebrtcProvider('crdt-folder', ydoc, { signaling: ['ws://localhost:4444'] })
 const yArray = ydoc.getArray('magic')
-
-const rootFolder = new Y.Array()
-rootFolder.push([{ id: '_ROOT_', parent: null, name: 'root' }])
-
-yArray.push([rootFolder])
+let rootFolder
 
 ydoc.on('update', update => {
-  render (document.querySelector('.overview'), rootFolder)
+  initRootFolder()
+  render(document.querySelector('.overview'), rootFolder)
 })
+
+function initRootFolder () {
+  if (yArray.length === 0) {
+    rootFolder = new Y.Array()
+    rootFolder.push([{ id: '_ROOT_', parent: null, name: 'root' }])
+    yArray.push([rootFolder])
+  } else {
+    rootFolder = yArray.get(0)
+  }
+}
 
 function render (rootEl, folderArray) {
   rootEl.innerHTML = ''
@@ -68,11 +75,13 @@ function createItemEl (itemMeta) {
 }
 
 document.querySelector('.add-folder').addEventListener('click', () => {
+  initRootFolder()
   const newFolder = new Y.Array()
   newFolder.push([{ id: nanoid(), parent: '_ROOT_', name: 'New Folder' }])
   yArray.push([newFolder])
 })
 
 document.querySelector('.add-item').addEventListener('click', () => {
+  initRootFolder()
   rootFolder.push([{ id: nanoid(), name: 'New Item' }])
 })
