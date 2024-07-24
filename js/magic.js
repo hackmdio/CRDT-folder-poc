@@ -1,4 +1,5 @@
 import * as Y from 'yjs'
+import { nanoid } from 'nanoid'
 
 const ydoc = new Y.Doc()
 const yArray = ydoc.getArray('magic')
@@ -56,3 +57,9 @@ function createItemEl (itemMeta) {
     <span>${id}</span>
   `
 }
+
+document.querySelector('.add-folder').addEventListener('click', () => {
+  const newFolder = new Y.Array()
+  newFolder.push([{ id: nanoid(), parent: '_ROOT_', name: 'New Folder' }])
+  yArray.push([newFolder])
+})
