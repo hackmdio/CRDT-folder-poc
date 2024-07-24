@@ -13,8 +13,6 @@ ydoc.on('update', update => {
   render (document.querySelector('.overview'), rootFolder)
 })
 
-
-
 function render (rootEl, folderArray) {
   rootEl.innerHTML = ''
   const folderMeta = folderArray.get(0)
@@ -30,8 +28,8 @@ function render (rootEl, folderArray) {
 
   for (let i = 1; i < folderArray.length; i++) {
     const folder = folderArray.get(i)
-    const noteEl = createItemEl(folder)
-    rootEl.appendChild(noteEl)
+    const itemEl = createItemEl(folder)
+    rootEl.appendChild(itemEl)
   }
 }
 
@@ -53,18 +51,26 @@ function createFolderIconEl (folderMeta) {
 }
 
 function createItemEl (itemMeta) {
-  const { id } = itemMeta
-  const noteIcon = document.createElement('div')
-  noteIcon.classList.add('item-icon')
-  noteIcon.classList.add('item')
-  noteIcon.innerHTML = `
-    <input type="checkbox" />
-    <span>${id}</span>
+  const { id, name } = itemMeta
+  const itemEl = document.createElement('div')
+  itemEl.classList.add('item-icon')
+  itemEl.classList.add('item')
+  itemEl.innerHTML = `
+    <div>
+      <input type="checkbox" />
+    </div>
+    <div>${id}</div>
+    <div>${name}</div>
   `
+  return itemEl
 }
 
 document.querySelector('.add-folder').addEventListener('click', () => {
   const newFolder = new Y.Array()
   newFolder.push([{ id: nanoid(), parent: '_ROOT_', name: 'New Folder' }])
   yArray.push([newFolder])
+})
+
+document.querySelector('.add-item').addEventListener('click', () => {
+  rootFolder.push([{ id: nanoid(), name: 'New Item' }])
 })
