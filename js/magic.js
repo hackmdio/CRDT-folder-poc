@@ -23,7 +23,7 @@ function render (rootEl, folderArray) {
 
     if (_folderMeta.parent === folderMeta.id) {
       const folderEl = createFolderIconEl(_folderMeta)
-      root.appendChild(folderEl)
+      rootEl.appendChild(folderEl)
     }
   })
 
