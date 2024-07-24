@@ -30,24 +30,24 @@ function render (rootEl, folderArray) {
     const _folderMeta = folder.get(0)
 
     if (_folderMeta.parent === folderMeta.id) {
-      const folderEl = createFolderIconEl(_folderMeta)
+      const folderEl = createFolderEl(_folderMeta)
       rootEl.appendChild(folderEl)
     }
   })
 
   for (let i = 1; i < folderArray.length; i++) {
-    const folder = folderArray.get(i)
-    const itemEl = createItemEl(folder)
+    const item = folderArray.get(i)
+    const itemEl = createItemEl(item)
     rootEl.appendChild(itemEl)
   }
 }
 
-function createFolderIconEl (folderMeta) {
+function createFolderEl (folderMeta) {
   const { id, name } = folderMeta
-  const folderIcon = document.createElement('div')
-  folderIcon.classList.add('folder-icon')
-  folderIcon.classList.add('item')
-  folderIcon.innerHTML = `
+  const folderEl = document.createElement('div')
+  folderEl.classList.add('folder-icon')
+  folderEl.classList.add('item')
+  folderEl.innerHTML = `
     <div>
       <input type="checkbox" />
       <button>View</button>
@@ -56,7 +56,7 @@ function createFolderIconEl (folderMeta) {
     <div>${id}</div>
     <div>${name}</div>
   `
-  return folderIcon
+  return folderEl
 }
 
 function createItemEl (itemMeta) {
