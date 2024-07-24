@@ -36,14 +36,18 @@ function render (rootEl, folderArray) {
 }
 
 function createFolderIconEl (folderMeta) {
-  const { id } = folderMeta
+  const { id, name } = folderMeta
   const folderIcon = document.createElement('div')
   folderIcon.classList.add('folder-icon')
+  folderIcon.classList.add('item')
   folderIcon.innerHTML = `
-    <input type="checkbox" />
-    <span>${id}</span>
-    <button>View</button>
-    <button>Move item into...</button>
+    <div>
+      <input type="checkbox" />
+      <button>View</button>
+      <button>Move item into...</button>
+    </div>
+    <div>${id}</div>
+    <div>${name}</div>
   `
   return folderIcon
 }
@@ -52,6 +56,7 @@ function createItemEl (itemMeta) {
   const { id } = itemMeta
   const noteIcon = document.createElement('div')
   noteIcon.classList.add('item-icon')
+  noteIcon.classList.add('item')
   noteIcon.innerHTML = `
     <input type="checkbox" />
     <span>${id}</span>
