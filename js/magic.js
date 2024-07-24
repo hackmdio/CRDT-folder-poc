@@ -1,7 +1,9 @@
 import * as Y from 'yjs'
+import { WebrtcProvider } from 'y-webrtc'
 import { nanoid } from 'nanoid'
 
 const ydoc = new Y.Doc()
+const provider = new WebrtcProvider('crdt-folder', ydoc, { signaling: ['ws://localhost:4444'] })
 const yArray = ydoc.getArray('magic')
 
 const rootFolder = new Y.Array()
