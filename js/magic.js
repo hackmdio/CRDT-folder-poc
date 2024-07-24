@@ -6,10 +6,14 @@ const ydoc = new Y.Doc()
 const provider = new WebrtcProvider('crdt-folder', ydoc, { signaling: ['ws://localhost:4444'] })
 const yArray = ydoc.getArray('magic')
 let rootFolder
+let currentViewFolder
 
 ydoc.on('update', update => {
   initRootFolder()
-  render(document.querySelector('.overview'), rootFolder)
+  if (!currentViewFolder) {
+    currentViewFolder = rootFolder
+  }
+  render(document.querySelector('.overview'), currentViewFolder)
 })
 
 function initRootFolder () {
@@ -50,16 +54,34 @@ function createFolderEl (folderMeta) {
   folderEl.innerHTML = `
     <div>
       <input type="checkbox" />
-      <button>View</button>
-      <button>Move item into...</button>
+      <button class="view-folder">View</button>
+      <button class="move-into">Move selected item into here</button>
       <button class="delete-item">Delete</button>
     </div>
     <div>${id}</div>
     <div>${name}</div>
   `
   folderEl.dataset.id = id
+  folderEl.querySelector('.view-folder').addEventListener('click', viewFolderHandler)
   folderEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   return folderEl
+}
+
+function viewFolderHandler (event) {
+  const id = event.target.closest('.item').dataset.id
+  const folder = findFolder(id)
+  currentViewFolder = folder
+  render(document.querySelector('.overview'), folder)
+}
+
+function findFolder (id) {
+  let folder
+  yArray.forEach(f => {
+    if (f.get(0).id === id) {
+      folder = f
+    }
+  })
+  return folder
 }
 
 function createItemEl (itemMeta) {
@@ -83,13 +105,14 @@ function createItemEl (itemMeta) {
 document.querySelector('.add-folder').addEventListener('click', () => {
   initRootFolder()
   const newFolder = new Y.Array()
-  newFolder.push([{ id: nanoid(), parent: '_ROOT_', name: 'New Folder' }])
+  const parentId = currentViewFolder.get(0).id
+  newFolder.push([{ id: nanoid(), parent: parentId, name: 'New Folder' }])
   yArray.push([newFolder])
 })
 
 document.querySelector('.add-item').addEventListener('click', () => {
   initRootFolder()
-  rootFolder.push([{ id: nanoid(), name: 'New Item' }])
+  currentViewFolder.push([{ id: nanoid(), name: 'New Item' }])
 })
 
 document.querySelector('.delete').addEventListener('click', () => {
