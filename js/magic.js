@@ -77,6 +77,7 @@ function createFolderEl (folderMeta) {
   folderEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
   folderEl.querySelector('.view-folder').addEventListener('click', viewFolderHandler)
   folderEl.querySelector('.open-in-detail').addEventListener('click', openInDetailViewHandler)
+  folderEl.querySelector('.move-into').addEventListener('click', movoIntoHandler)
   folderEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   folderEl.querySelector('.rename').addEventListener('click', renameHandler)
   return folderEl
@@ -94,6 +95,34 @@ function openInDetailViewHandler (event) {
   const folder = findFolder(id)
   detailViewFolder = folder
   render(document.querySelector('.detail'), folder)
+}
+
+function movoIntoHandler (event) {
+  const id = event.target.closest('.item').dataset.id
+  const targetFolder = findFolder(id)
+  const foldersToMove = []
+  const itemsToMove = []
+  for (const folder of yArray) {
+    const folderMeta = folder.get(0)
+    if (selectedItems.has(folderMeta.id)) {
+      foldersToMove.push(folder)
+    }
+
+    for (const item of folder) {
+      if (selectedItems.has(item.id)) {
+        itemsToMove.push(item)
+      }
+    }
+  }
+  ydoc.transact(() => {
+    deleteItems(selectedItems, false)
+    for (const folder of foldersToMove) {
+      const folderMeta = folder.get(0)
+      folder.delete(0)
+      folder.insert(0, [{ ...folderMeta, parent: id }])
+    }
+    targetFolder.push(itemsToMove)
+  })
 }
 
 function updateBackButtonState () {
@@ -183,8 +212,8 @@ function deleteItemHandler (event) {
   deleteItems(new Set([id]))
 }
 
-function deleteItems (idSet) {
-  ydoc.transact(() => {
+function deleteItems (idSet, transaction = true) {
+  const _delete = () => {
     for (let i = yArray.length - 1; i >= 0; i--) {
       const folder = yArray.get(i)
       for (let j = folder.length - 1; j > 0; j--) {
@@ -201,7 +230,12 @@ function deleteItems (idSet) {
         idSet.delete(id)
       }
     }
-  })
+  }
+  if (transaction) {
+    ydoc.transact(_delete)
+  } else {
+    _delete()
+  }
 }
 
 function renameHandler (event) {
