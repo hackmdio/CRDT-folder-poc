@@ -44,6 +44,8 @@ function render (rootEl, folderArray) {
     const itemEl = createItemEl(item)
     rootEl.appendChild(itemEl)
   }
+
+  updateBackButtonState()
 }
 
 function createFolderEl (folderMeta) {
@@ -74,6 +76,11 @@ function viewFolderHandler (event) {
   render(document.querySelector('.overview'), folder)
 }
 
+function updateBackButtonState () {
+  const backButton = document.querySelector('.go-back')
+  backButton.toggleAttribute('disabled', currentViewFolder.get(0).id === rootFolder.get(0).id)
+}
+
 function findFolder (id) {
   let folder
   yArray.forEach(f => {
@@ -101,6 +108,13 @@ function createItemEl (itemMeta) {
   itemEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   return itemEl
 }
+
+document.querySelector('.go-back').addEventListener('click', () => {
+  const parentId = currentViewFolder.get(0).parent
+  const folder = findFolder(parentId)
+  currentViewFolder = folder
+  render(document.querySelector('.overview'), folder)
+})
 
 document.querySelector('.add-folder').addEventListener('click', () => {
   initRootFolder()
