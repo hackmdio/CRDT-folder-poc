@@ -62,12 +62,13 @@ function render (rootEl, folderArray) {
 
 function createFolderEl (folderMeta) {
   const { id, name } = folderMeta
+  const checked = selectedItems.has(id) ? 'checked' : ''
   const folderEl = document.createElement('div')
   folderEl.classList.add('folder-icon')
   folderEl.classList.add('item')
   folderEl.innerHTML = `
     <div>
-      <input type="checkbox" />
+      <input class="cb" type="checkbox" ${checked} />
       <button class="view-folder">View</button>
       <button class="open-in-detail">Open in detail</button>
       <button class="move-into">Move selected item into here</button>
@@ -78,7 +79,7 @@ function createFolderEl (folderMeta) {
     <div class="name">${name}</div>
   `
   folderEl.dataset.id = id
-  folderEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
+  folderEl.addEventListener('click', checkboxHandler)
   folderEl.querySelector('.view-folder').addEventListener('click', viewFolderHandler)
   folderEl.querySelector('.open-in-detail').addEventListener('click', openInDetailViewHandler)
   folderEl.querySelector('.move-into').addEventListener('click', movoIntoHandler)
@@ -165,12 +166,13 @@ function findFolder (id) {
 
 function createItemEl (itemMeta) {
   const { id, name } = itemMeta
+  const checked = selectedItems.has(id) ? 'checked' : ''
   const itemEl = document.createElement('div')
   itemEl.classList.add('item-icon')
   itemEl.classList.add('item')
   itemEl.innerHTML = `
     <div>
-      <input type="checkbox" />
+      <input class="cb" type="checkbox" ${checked} />
       <button class="delete-item">Delete</button>
       <button class="rename">Rename</button>
     </div>
@@ -178,7 +180,7 @@ function createItemEl (itemMeta) {
     <div class="name">${name}</div>
   `
   itemEl.dataset.id = id
-  itemEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
+  itemEl.addEventListener('click', checkboxHandler)
   itemEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   itemEl.querySelector('.rename').addEventListener('click', renameHandler)
   return itemEl
@@ -218,11 +220,16 @@ document.querySelector('.connect-switch').addEventListener('click', () => {
 })
 
 function checkboxHandler (event) {
-  const id = event.target.closest('.item').dataset.id
-  if (event.target.checked) {
-    selectedItems.add(id)
-  } else {
+  const itemEl = event.target.closest('.item')
+  const id = itemEl.dataset.id
+  if (event.currentTarget.tagName === 'BUTTON') return
+  const checkbox = itemEl.querySelector('.cb')
+  if (selectedItems.has(id)) {
     selectedItems.delete(id)
+    checkbox.checked = false
+  } else {
+    selectedItems.add(id)
+    checkbox.checked = true
   }
 }
 
