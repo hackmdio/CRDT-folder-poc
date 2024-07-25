@@ -247,6 +247,7 @@ function deleteItems (idSet, transaction = true) {
         if (idSet.has(id)) {
           folder.delete(j)
           idSet.delete(id)
+          selectedItems.delete(id)
         }
       }
 
@@ -254,6 +255,7 @@ function deleteItems (idSet, transaction = true) {
       if (idSet.has(id)) {
         yArray.delete(i)
         idSet.delete(id)
+        selectedItems.delete(id)
       }
     }
   }
