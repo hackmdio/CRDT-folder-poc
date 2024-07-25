@@ -20,7 +20,7 @@ ydoc.on('update', update => {
 function initRootFolder () {
   if (yArray.length === 0) {
     rootFolder = new Y.Array()
-    rootFolder.push([{ id: '_ROOT_', parent: null, name: 'root' }])
+    rootFolder.push([{ id: '_ROOT_', parent: null, name: '_ROOT_' }])
     yArray.push([rootFolder])
   } else {
     rootFolder = yArray.get(0)
@@ -49,6 +49,7 @@ function render (rootEl, folderArray) {
   }
 
   updateBackButtonState()
+  updatePathState()
 }
 
 function createFolderEl (folderMeta) {
@@ -85,6 +86,18 @@ function viewFolderHandler (event) {
 function updateBackButtonState () {
   const backButton = document.querySelector('.go-back')
   backButton.toggleAttribute('disabled', currentViewFolder.get(0).id === rootFolder.get(0).id)
+}
+
+function updatePathState () {
+  const pathEl = document.querySelector('.path')
+  const path = []
+  let folder = currentViewFolder
+  while (folder) {
+    const { name, parent} = folder.get(0)
+    path.unshift(name)
+    folder = findFolder(parent)
+  }
+  pathEl.textContent = `Path: ${path.join(' > ')}`
 }
 
 function findFolder (id) {
