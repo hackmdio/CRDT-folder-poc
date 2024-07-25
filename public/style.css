@@ -35,3 +35,11 @@
 .item-icon {
   background-color: lightgray;
 }
+
+.connect-switch {
+  background-color: crimson;
+}
+
+.connect-switch.connected {
+  background-color: lightgreen;
+}

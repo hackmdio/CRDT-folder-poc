@@ -21,6 +21,10 @@ ydoc.on('update', update => {
   }
 })
 
+provider.on('status', event => {
+  updateConnectButtonState()
+})
+
 function initRootFolder () {
   if (yArray.length === 0) {
     rootFolder = new Y.Array()
@@ -142,6 +146,12 @@ function updatePathState () {
   pathEl.textContent = `Path: ${path.join(' > ')}`
 }
 
+function updateConnectButtonState () {
+  const connectButton = document.querySelector('.connect-switch')
+  connectButton.textContent = provider.connected ? 'disconnect' : 'connect'
+  connectButton.classList.toggle('connected', provider.connected)
+}
+
 function findFolder (id) {
   let folder
   yArray.forEach(f => {
@@ -196,6 +206,14 @@ document.querySelector('.add-item').addEventListener('click', () => {
 document.querySelector('.delete').addEventListener('click', () => {
   deleteItems(selectedItems)
   selectedItems.clear()
+})
+
+document.querySelector('.connect-switch').addEventListener('click', () => {
+  if (provider.connected) {
+    provider.disconnect()
+  } else {
+    provider.connect()
+  }
 })
 
 function checkboxHandler (event) {
