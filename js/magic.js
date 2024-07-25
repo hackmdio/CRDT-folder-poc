@@ -36,6 +36,7 @@ function render (rootEl, folderArray) {
 
     if (_folderMeta.parent === folderMeta.id) {
       const folderEl = createFolderEl(_folderMeta)
+      folderEl.dataset.parentFolderId = folderMeta.id
       rootEl.appendChild(folderEl)
     }
   })
@@ -43,6 +44,7 @@ function render (rootEl, folderArray) {
   for (let i = 1; i < folderArray.length; i++) {
     const item = folderArray.get(i)
     const itemEl = createItemEl(item)
+    itemEl.dataset.parentFolderId = folderMeta.id
     rootEl.appendChild(itemEl)
   }
 
@@ -60,14 +62,16 @@ function createFolderEl (folderMeta) {
       <button class="view-folder">View</button>
       <button class="move-into">Move selected item into here</button>
       <button class="delete-item">Delete</button>
+      <button class="rename">Rename</button>
     </div>
     <div>${id}</div>
-    <div>${name}</div>
+    <div class="name">${name}</div>
   `
   folderEl.dataset.id = id
   folderEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
   folderEl.querySelector('.view-folder').addEventListener('click', viewFolderHandler)
   folderEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
+  folderEl.querySelector('.rename').addEventListener('click', renameHandler)
   return folderEl
 }
 
@@ -102,13 +106,15 @@ function createItemEl (itemMeta) {
     <div>
       <input type="checkbox" />
       <button class="delete-item">Delete</button>
+      <button class="rename">Rename</button>
     </div>
     <div>${id}</div>
-    <div>${name}</div>
+    <div class="name">${name}</div>
   `
   itemEl.dataset.id = id
   itemEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
   itemEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
+  itemEl.querySelector('.rename').addEventListener('click', renameHandler)
   return itemEl
 }
 
@@ -170,4 +176,29 @@ function deleteItems (idSet) {
       }
     }
   })
+}
+
+function renameHandler (event) {
+  const targetEl = event.target.closest('.item')
+  const id = targetEl.dataset.id
+  const isFolder = targetEl.classList.contains('folder-icon')
+  if (isFolder) {
+    const folder = findFolder(id)
+    const folderMeta = folder.get(0)
+    const newName = prompt('Enter new folder name', folderMeta.name)
+    ydoc.transact(() => {
+      folder.delete(0)
+      folder.insert(0, [{ ...folderMeta, name: newName }])
+    })
+  } else {
+    const parentFolderId = targetEl.dataset.parentFolderId
+    const parentFolder = findFolder(parentFolderId)
+    const itemIdx = parentFolder.toArray().findIndex(item => item.id === id)
+    const itemMeta = parentFolder.get(itemIdx)
+    const newName = prompt('Enter new item name', itemMeta.name)
+    ydoc.transact(() => {
+      parentFolder.delete(itemIdx)
+      parentFolder.insert(itemIdx, [{ ...itemMeta, name: newName }])
+    })
+  }
 }
