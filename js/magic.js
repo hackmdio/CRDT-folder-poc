@@ -63,6 +63,11 @@ function initRootFolder () {
 function render (rootEl, folderArray) {
   rootEl.innerHTML = ''
   const folderMeta = folderArray.get(0)
+  if (!folderMeta) {
+    currentViewFolder = rootFolder
+    render(document.querySelector('.overview'), rootFolder)
+    return
+  }
 
   yArray.forEach(folder => {
     const _folderMeta = folder.get(0)
