@@ -7,6 +7,7 @@ const provider = new WebrtcProvider('crdt-folder', ydoc, { signaling: ['ws://loc
 const yArray = ydoc.getArray('magic')
 let rootFolder
 let currentViewFolder
+let detailViewFolder
 let selectedItems = new Set()
 
 ydoc.on('update', update => {
@@ -15,6 +16,9 @@ ydoc.on('update', update => {
     currentViewFolder = rootFolder
   }
   render(document.querySelector('.overview'), currentViewFolder)
+  if (detailViewFolder) {
+    render(document.querySelector('.detail'), detailViewFolder)
+  }
 })
 
 function initRootFolder () {
@@ -61,6 +65,7 @@ function createFolderEl (folderMeta) {
     <div>
       <input type="checkbox" />
       <button class="view-folder">View</button>
+      <button class="open-in-detail">Open in detail</button>
       <button class="move-into">Move selected item into here</button>
       <button class="delete-item">Delete</button>
       <button class="rename">Rename</button>
@@ -71,6 +76,7 @@ function createFolderEl (folderMeta) {
   folderEl.dataset.id = id
   folderEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
   folderEl.querySelector('.view-folder').addEventListener('click', viewFolderHandler)
+  folderEl.querySelector('.open-in-detail').addEventListener('click', openInDetailViewHandler)
   folderEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   folderEl.querySelector('.rename').addEventListener('click', renameHandler)
   return folderEl
@@ -81,6 +87,13 @@ function viewFolderHandler (event) {
   const folder = findFolder(id)
   currentViewFolder = folder
   render(document.querySelector('.overview'), folder)
+}
+
+function openInDetailViewHandler (event) {
+  const id = event.target.closest('.item').dataset.id
+  const folder = findFolder(id)
+  detailViewFolder = folder
+  render(document.querySelector('.detail'), folder)
 }
 
 function updateBackButtonState () {
