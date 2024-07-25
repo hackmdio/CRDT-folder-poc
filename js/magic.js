@@ -7,6 +7,7 @@ const provider = new WebrtcProvider('crdt-folder', ydoc, { signaling: ['ws://loc
 const yArray = ydoc.getArray('magic')
 let rootFolder
 let currentViewFolder
+let selectedItems = new Set()
 
 ydoc.on('update', update => {
   initRootFolder()
@@ -64,6 +65,7 @@ function createFolderEl (folderMeta) {
     <div>${name}</div>
   `
   folderEl.dataset.id = id
+  folderEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
   folderEl.querySelector('.view-folder').addEventListener('click', viewFolderHandler)
   folderEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   return folderEl
@@ -105,6 +107,7 @@ function createItemEl (itemMeta) {
     <div>${name}</div>
   `
   itemEl.dataset.id = id
+  itemEl.querySelector('input[type="checkbox"]').addEventListener('change', checkboxHandler)
   itemEl.querySelector('.delete-item').addEventListener('click', deleteItemHandler)
   return itemEl
 }
@@ -130,13 +133,18 @@ document.querySelector('.add-item').addEventListener('click', () => {
 })
 
 document.querySelector('.delete').addEventListener('click', () => {
-  let idSet = new Set()
-  document.querySelectorAll('.item input[type="checkbox"]:checked').forEach(el => {
-    const id = el.closest('.item').dataset.id
-    idSet.add(id)
-  })
-  deleteItems(idSet)
+  deleteItems(selectedItems)
+  selectedItems.clear()
 })
+
+function checkboxHandler (event) {
+  const id = event.target.closest('.item').dataset.id
+  if (event.target.checked) {
+    selectedItems.add(id)
+  } else {
+    selectedItems.delete(id)
+  }
+}
 
 function deleteItemHandler (event) {
   const id = event.target.closest('.item').dataset.id
