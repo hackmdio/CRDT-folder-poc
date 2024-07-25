@@ -21,6 +21,31 @@ ydoc.on('update', update => {
   }
 })
 
+yArray.observeDeep(() => {
+  // delete duplicated items
+  const latestTimestamps = new Map()
+  traverseBackward((item) => {
+    const timestamp = Math.max(latestTimestamps.get(item.id) ?? 0, item.timestamp)
+    latestTimestamps.set(item.id, timestamp)
+  })
+  ydoc.transact(() => {
+    traverseBackward((item, folder, idx) => {
+      if (item.timestamp < latestTimestamps.get(item.id)) {
+        folder.delete(idx)
+      }
+    })
+  })
+})
+
+function traverseBackward (cb) {
+  for (let i = yArray.length - 1; i >= 0; i--) {
+    const folder = yArray.get(i)
+    for (let j = folder.length - 1; j >= 0; j--) {
+      cb(folder.get(j), folder, j)
+    }
+  }
+}
+
 provider.on('status', event => {
   updateConnectButtonState()
 })
@@ -28,7 +53,7 @@ provider.on('status', event => {
 function initRootFolder () {
   if (yArray.length === 0) {
     rootFolder = new Y.Array()
-    rootFolder.push([{ id: '_ROOT_', parent: null, name: '_ROOT_' }])
+    rootFolder.push([{ id: '_ROOT_', parent: null, name: '_ROOT_', timestamp: Date.now() }])
     yArray.push([rootFolder])
   } else {
     rootFolder = yArray.get(0)
@@ -103,6 +128,7 @@ function openInDetailViewHandler (event) {
 }
 
 function movoIntoHandler (event) {
+  const timestamp = Date.now()
   const id = event.target.closest('.item').dataset.id
   const targetFolder = findFolder(id)
   const foldersToMove = []
@@ -116,7 +142,7 @@ function movoIntoHandler (event) {
     for (let i = 1; i < folder.length; i++) {
       const item = folder.get(i)
       if (selectedItems.has(item.id)) {
-        itemsToMove.push(item)
+        itemsToMove.push({ ...item, timestamp })
       }
     }
   }
@@ -125,7 +151,7 @@ function movoIntoHandler (event) {
     for (const folder of foldersToMove) {
       const folderMeta = folder.get(0)
       folder.delete(0)
-      folder.insert(0, [{ ...folderMeta, parent: id }])
+      folder.insert(0, [{ ...folderMeta, parent: id, timestamp }])
     }
     targetFolder.push(itemsToMove)
   })
@@ -197,13 +223,13 @@ document.querySelector('.add-folder').addEventListener('click', () => {
   initRootFolder()
   const newFolder = new Y.Array()
   const parentId = currentViewFolder.get(0).id
-  newFolder.push([{ id: nanoid(), parent: parentId, name: 'New Folder' }])
+  newFolder.push([{ id: nanoid(), parent: parentId, name: 'New Folder', timestamp: Date.now() }])
   yArray.push([newFolder])
 })
 
 document.querySelector('.add-item').addEventListener('click', () => {
   initRootFolder()
-  currentViewFolder.push([{ id: nanoid(), name: 'New Item' }])
+  currentViewFolder.push([{ id: nanoid(), name: 'New Item', timestamp: Date.now() }])
 })
 
 document.querySelector('.delete').addEventListener('click', () => {
@@ -276,7 +302,7 @@ function renameHandler (event) {
     const newName = prompt('Enter new folder name', folderMeta.name)
     ydoc.transact(() => {
       folder.delete(0)
-      folder.insert(0, [{ ...folderMeta, name: newName }])
+      folder.insert(0, [{ ...folderMeta, name: newName, timestamp: Date.now() }])
     })
   } else {
     const parentFolderId = targetEl.dataset.parentFolderId
@@ -286,7 +312,7 @@ function renameHandler (event) {
     const newName = prompt('Enter new item name', itemMeta.name)
     ydoc.transact(() => {
       parentFolder.delete(itemIdx)
-      parentFolder.insert(itemIdx, [{ ...itemMeta, name: newName }])
+      parentFolder.insert(itemIdx, [{ ...itemMeta, name: newName, timestamp: Date.now() }])
     })
   }
 }
