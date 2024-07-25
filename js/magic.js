@@ -253,7 +253,7 @@ document.querySelector('.connect-switch').addEventListener('click', () => {
 function checkboxHandler (event) {
   const itemEl = event.target.closest('.item')
   const id = itemEl.dataset.id
-  if (event.currentTarget.tagName === 'BUTTON') return
+  if (event.target.tagName === 'BUTTON') return
   const checkbox = itemEl.querySelector('.cb')
   if (selectedItems.has(id)) {
     selectedItems.delete(id)
