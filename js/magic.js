@@ -112,7 +112,8 @@ function movoIntoHandler (event) {
       foldersToMove.push(folder)
     }
 
-    for (const item of folder) {
+    for (let i = 1; i < folder.length; i++) {
+      const item = folder.get(i)
       if (selectedItems.has(item.id)) {
         itemsToMove.push(item)
       }
