@@ -1,5 +1,10 @@
 {
   "type": "module",
+  "scripts": {
+    "start": "node ./app.js",
+    "build": "webpack",
+    "webrtc": "node ./node_modules/y-webrtc/bin/server.js"
+  },
   "dependencies": {
     "express": "^4.19.2",
     "nanoid": "^5.0.7",
