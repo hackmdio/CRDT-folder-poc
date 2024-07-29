@@ -1,0 +1,20 @@
+services:
+  static:
+    image: "hmd-crdt-folder-poc:latest"
+    environment:
+      - APP_MODE=static
+      - STATIC_PORT
+      - PORT
+      - PROTO
+      - HOST
+    restart: unless-stopped
+    ports:
+      - "${STATIC_PORT_EXT}:${STATIC_PORT}"
+  webrtc:
+    image: "hmd-crdt-folder-poc:latest"
+    environment:
+      - APP_MODE=webrtc
+      - PORT
+    ports:
+      - "${PORT_EXT}:${PORT}"
+    restart: unless-stopped
