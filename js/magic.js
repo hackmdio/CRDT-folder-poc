@@ -3,7 +3,11 @@ import { WebrtcProvider } from 'y-webrtc'
 import { nanoid } from 'nanoid'
 
 const ydoc = new Y.Doc()
-const provider = new WebrtcProvider('crdt-folder', ydoc, { signaling: ['ws://localhost:4444'] })
+const provider = new WebrtcProvider(
+  'crdt-folder',
+  ydoc,
+  { signaling: [window.serverUrl || 'ws://localhost:4444'] },
+)
 const yArray = ydoc.getArray('magic')
 let rootFolder
 let currentViewFolder
