@@ -1,6 +1,6 @@
 async function fetchConfig () {
-    const { serverUrl } = await fetch('/config')
-    window.serverUrl = serverUrl
-    await import('./magic')
+  const { serverUrl } = await fetch('/config')
+  window.serverUrl = serverUrl
+  await import('./magic.js')
 }
 fetchConfig()
