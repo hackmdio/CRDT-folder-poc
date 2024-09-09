@@ -1,14 +1,18 @@
 import * as Y from 'yjs'
-import { WebrtcProvider } from 'y-webrtc'
 import { nanoid } from 'nanoid'
+import { SocketIOProvider } from './client.js'
 
-const ydoc = new Y.Doc()
-const provider = new WebrtcProvider(
+const ydoc = new Y.Doc();
+const provider = new SocketIOProvider(
+  window.serverUrl || 'ws://localhost:4444',
   'crdt-folder',
   ydoc,
-  { signaling: [window.serverUrl || 'ws://localhost:4444'] },
-)
-const yArray = ydoc.getArray('magic')
+);
+// const provider = new WebrtcProvider(
+//   'crdt-folder',
+//   ydoc,
+//   { signaling: [window.serverUrl || 'ws://localhost:4444'] },
+// )
 let rootFolder
 let currentViewFolder
 let detailViewFolder
@@ -50,7 +54,7 @@ function traverseBackward (cb) {
   }
 }
 
-provider.on('status', event => {
+provider.on('status', () => {
   updateConnectButtonState()
 })
 
@@ -185,8 +189,8 @@ function updatePathState () {
 
 function updateConnectButtonState () {
   const connectButton = document.querySelector('.connect-switch')
-  connectButton.textContent = provider.connected ? 'disconnect' : 'connect'
-  connectButton.classList.toggle('connected', provider.connected)
+  connectButton.textContent = provider.socket.connected ? 'disconnect' : 'connect'
+  connectButton.classList.toggle('connected', provider.socket.connected)
 }
 
 function findFolder (id) {
@@ -247,7 +251,7 @@ document.querySelector('.delete').addEventListener('click', () => {
 })
 
 document.querySelector('.connect-switch').addEventListener('click', () => {
-  if (provider.connected) {
+  if (provider.socket.connected) {
     provider.disconnect()
   } else {
     provider.connect()
