@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import { SocketIOProvider } from './client.js'
 
 const ydoc = new Y.Doc();
+const yArray = ydoc.getArray('magic')
 const provider = new SocketIOProvider(
   window.serverUrl || 'ws://localhost:4444',
   'crdt-folder',
